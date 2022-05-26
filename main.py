@@ -20,7 +20,7 @@ def main():
 
     # Constants
     EPISODES = 20_000
-    SHOW_EVERY = 10_000
+    SHOW_EVERY = 1000
     MAX_EPISODES = 500
 
     # Entities
@@ -29,12 +29,10 @@ def main():
     controller = Controller()
     agent = Agent(action_space_size=len(Movement))
     translator = Translator()
+    graphics = Graphics()
 
     # Variables
     times_completed = 0
-
-    # Graphics
-    graphics = Graphics()
 
     for episode in tqdm.tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
 
@@ -42,7 +40,7 @@ def main():
         done = False
         episode_step = 0
         episode_reward = 0
-        blob = Blob(size=0.1)
+        blob.reset()
 
         # Get initial state
         state = controller.get_state(manipulator, blob)
@@ -83,9 +81,8 @@ def main():
 
             # Render
             if not episode % SHOW_EVERY:
-                log.debug(f'{state=}, {episode_reward=}', flush=True)
                 graphics.render(manipulator, blob)
-                time.sleep(0.2)
+                time.sleep(0.05)
 
         # Increase times completed counter if done
         if done:
@@ -93,6 +90,7 @@ def main():
 
         # Decay epsilon
         agent.decay()
+        blob.decay_size()
 
     log.info(f'{times_completed=}')
 
