@@ -8,7 +8,7 @@ from src.manipulator import Manipulator
 from src.graphics import Graphics
 from src.blob import Blob
 from src.controller import Controller
-from src.agent import Agent
+from src.agents import AgentFactory, Agents
 from src.translator import Translator, Movement
 
 
@@ -20,14 +20,15 @@ def main():
 
     # Constants
     EPISODES = 20_000
-    SHOW_EVERY = 1000
-    MAX_EPISODES = 500
+    SHOW_EVERY = 10_000
+    MAX_EPISODES = 200
 
     # Entities
     manipulator = Manipulator()
     blob = Blob(size=0.1)
     controller = Controller()
-    agent = Agent(action_space_size=len(Movement))
+    agent = AgentFactory.get_agent(agent_type=Agents.q_agent,
+                                   action_space_size=len(Movement))
     translator = Translator()
     graphics = Graphics()
 

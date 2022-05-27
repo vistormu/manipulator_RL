@@ -1,7 +1,9 @@
 import numpy as np
 
+from . import IAgent
 
-class Agent:
+
+class QAgent(IAgent):
 
     DISCOUNT = 0.95
     LEARNING_RATE = 0.1
@@ -23,7 +25,7 @@ class Agent:
 
         return tuple(discrete_state.astype(int))
 
-    def get_best_action(self, state):
+    def get_best_action(self, state: np.ndarray) -> int:
 
         discrete_state = self._get_discrete_state(state)
 
@@ -34,7 +36,7 @@ class Agent:
 
         return action
 
-    def update(self, state, new_state, action, reward, done):
+    def update(self, state, new_state, action, reward, done) -> None:
         discrete_state = self._get_discrete_state(state)
         new_discrete_state = self._get_discrete_state(new_state)
 
@@ -48,7 +50,7 @@ class Agent:
         else:
             self.q_table[discrete_state + (action,)] = 0
 
-    def decay(self):
+    def decay(self) -> None:
         if self.epsilon > self.MIN_EPSILON:
             self.epsilon *= self.EPSILON_DECAY
             self.epsilon = max(self.MIN_EPSILON, self.epsilon)
