@@ -1,16 +1,16 @@
 import abc
 
 
-class IAgent(metaclass=abc.ABCMeta):
+class IAgent(abc.ABC):
 
-    @abc.abstractstaticmethod
+    @abc.abstractmethod
     def get_best_action():
         ''' Interface method '''
 
-    @abc.abstractstaticmethod
+    @abc.abstractmethod
     def update():
         ''' Interface method '''
 
-    @abc.abstractstaticmethod
+    @abc.abstractmethod
     def decay():
         ''' Interface method '''

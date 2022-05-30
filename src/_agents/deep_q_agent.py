@@ -1,17 +1,11 @@
 import collections
+import random
 import numpy as np
-from keras import models, layers, optimizers
+from keras import models, layers
 
 from . import IAgent
 
-# DISCOUNT = 0.99
-# REPLAY_MEMORY_SIZE = 50_000  # How many last steps to keep for model training
-# MIN_REPLAY_MEMORY_SIZE = 1_000  # Minimum number of steps in a memory to start training
-# MINIBATCH_SIZE = 64  # How many steps (samples) to use for training
-# UPDATE_TARGET_EVERY = 5  # Terminal states (end of episodes)
-# MODEL_NAME = '2x256'
-# MIN_REWARD = -200  # For model save
-# MEMORY_FRACTION = 0.20
+from core import logger
 
 
 class DeepQAgent(IAgent):
@@ -20,10 +14,16 @@ class DeepQAgent(IAgent):
     MIN_REPLAY_MEMORY_SIZE = 1000
     MINIBATCH_SIZE = 64
 
+    UPDATE_TARGET_EVERY = 5
+
     EPSILON_DECAY = 0.99975
     MIN_EPSILON = 0.001
 
+    DISCOUNT = 0.99
+
     def __init__(self, size) -> None:
+        self.log = logger.Logger(__class__.__name__)
+
         self.input_size, self.hidden_size, self.output_size = size
 
         self.model = self._create_model()
@@ -40,9 +40,8 @@ class DeepQAgent(IAgent):
     def get_best_action(self, state):
 
         if np.random.random() > self.epsilon:
-            action = self.model.predict(state)
-            # self.model.predict(np.array(state).reshape(-1, *state.shape)/255)[0]
-            pass
+            action = np.argmax(self.model.predict(
+                state.reshape(-1, *state.shape))[0])
         else:
             action = np.random.randint(0, self.output_size)
 
@@ -50,23 +49,54 @@ class DeepQAgent(IAgent):
 
     def update(self, state, new_state, action, reward, done):
 
-        transition = [state, new_state, action, reward, done]
-
         # Update replay memory
+        transition = (state, new_state, action, reward, done)
         self.replay_memory.append(transition)
 
         # Start training only if certain number of samples is already saved
         if len(self.replay_memory) < self.MIN_REPLAY_MEMORY_SIZE:
             return
 
-        minibatch = np.random.sample(self.replay_memory, self.MINIBATCH_SIZE)
+        minibatch = random.sample(self.replay_memory, self.MINIBATCH_SIZE)
 
-        current_states = minibatch[0, :]
-        current_qs = self.model.predict(current_states)
-        new_current_states = minibatch[1, :]
-        future_qs = self.model.predict(new_current_states)
+        states, new_states, actions, rewards, dones = zip(*minibatch)
+        current_qs = self.model.predict(np.array(states))
+        future_qs = self.model.predict(np.array(new_states))
 
-        # WIP
+        X = []
+        y = []
+
+        for index, (state, new_state, action, reward, done) in enumerate(minibatch):
+
+            if not done:
+                max_future_q = np.max(future_qs[index])
+                new_q = reward + self.DISCOUNT * max_future_q
+            else:
+                new_q = reward
+
+            # Update Q value for given state
+            current_q = current_qs[index]
+            current_q[action] = new_q
+
+            # And append to our training data
+            X.append(state)
+            y.append(current_q)
+
+        # Fit on all samples as one batch
+        self.model.fit(np.array(X),
+                       np.array(y),
+                       batch_size=self.MINIBATCH_SIZE,
+                       verbose=0,
+                       shuffle=False)
+
+        # Update target network counter every episode
+        if done:
+            self.target_update_counter += 1
+
+        # If counter reaches set value, update target network with weights of main network
+        if self.target_update_counter > self.UPDATE_TARGET_EVERY:
+            self.target_model.set_weights(self.model.get_weights())
+            self.target_update_counter = 0
 
     def decay(self) -> None:
         if self.epsilon > self.MIN_EPSILON:
@@ -76,18 +106,22 @@ class DeepQAgent(IAgent):
     def _create_model(self):
         model = models.Sequential()
 
-        # Input layer
-        model.add(layers.Dense(self.input_size))
-        model.add(layers.Activation('relu'))
+        # Input layer and first hidden layer
+        model.add(layers.Dense(self.hidden_size,
+                               input_dim=self.input_size,
+                               activation='relu'))
 
         # Hidden layer
-        model.add(layers.Dense(self.hidden_size))
-        model.add(layers.Activation('relu'))
+        model.add(layers.Dense(self.hidden_size,
+                               activation='relu'))
 
         # Output layer
-        model.add(layers.Dense(self.output_size))
-        model.add(layers.Activation('linear'))
+        model.add(layers.Dense(self.output_size,
+                               activation='sigmoid'))
 
-        model.compile(loss='mse', optimizer=optimizers.adam_v2.Adam())
+        # Compiler
+        model.compile(loss='categorical_crossentropy',
+                      optimizer='adam',
+                      metrics=['accuracy'])
 
         return model

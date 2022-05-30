@@ -1,1 +1,1 @@
-from .._agents.agent_factory import AgentFactory, Agents
+from .._agents.agent_factory import get_agent

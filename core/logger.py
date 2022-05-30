@@ -8,6 +8,8 @@ class _Formatter:
     END = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    LINE_UP = '\033[1A'
+    LINE_CLEAR = '\x1b[2K'
 
     @classmethod
     def bold(cls, message: str) -> str:
@@ -35,9 +37,10 @@ def output(function):
     def wrapper(*args, **kwargs):
         return_value = function(*args, **kwargs)
         if kwargs.get('flush'):
-            print(return_value + '\r', end='')
+            print('\r' + return_value, end='', **kwargs)
+            print(_Formatter.LINE_UP, end=_Formatter.LINE_CLEAR)
         else:
-            print(return_value)
+            print(return_value, **kwargs)
 
     return wrapper
 
@@ -51,8 +54,8 @@ class Logger(_Formatter):
         self.__mute_warning = False
         self.__mute_error = False
 
-    @output
-    def info(self, *message, flush=False) -> None:
+    @ output
+    def info(self, *message, flush=False, **kwargs) -> None:
         if self.__mute_info:
             return
 
@@ -64,8 +67,8 @@ class Logger(_Formatter):
 
         return name + level + ' ' + message
 
-    @output
-    def debug(self, *message, flush=False) -> None:
+    @ output
+    def debug(self, *message, flush=False, **kwargs) -> None:
         if self.__mute_debug:
             return
 
@@ -77,8 +80,8 @@ class Logger(_Formatter):
 
         return name + level + ' ' + message
 
-    @output
-    def warning(self, *message, flush=False) -> None:
+    @ output
+    def warning(self, *message, flush=False, **kwargs) -> None:
         if self.__mute_warning:
             return
 
@@ -90,8 +93,8 @@ class Logger(_Formatter):
 
         return name + level + ' ' + message
 
-    @output
-    def error(self, *message, flush=False) -> None:
+    @ output
+    def error(self, *message, flush=False, **kwargs) -> None:
         if self.__mute_error:
             return
 

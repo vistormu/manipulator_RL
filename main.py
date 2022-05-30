@@ -8,8 +8,8 @@ from src.manipulator import Manipulator
 from src.graphics import Graphics
 from src.blob import Blob
 from src.controller import Controller
-from src.agents import AgentFactory, Agents
-from src.translator import Translator, Movement
+from src import agents
+from src.translator import Translator
 
 
 def main():
@@ -20,22 +20,25 @@ def main():
 
     # Constants
     EPISODES = 20_000
-    SHOW_EVERY = 10_000
+    SHOW_EVERY = 1000
     MAX_EPISODES = 200
 
     # Entities
     manipulator = Manipulator()
     blob = Blob(size=0.1)
     controller = Controller()
-    agent = AgentFactory.get_agent(agent_type=Agents.q_agent,
-                                   action_space_size=len(Movement))
     translator = Translator()
+    # agent = agents.get_agent(agent_type='q_agent',
+    #                          action_space_size=translator.output_size)
+    agent = agents.get_agent(agent_type='deep_q_agent',
+                             size=(2, 16, translator.output_size))
     graphics = Graphics()
 
     # Variables
     times_completed = 0
 
-    for episode in tqdm.tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
+    # for episode in tqdm.tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
+    for episode in range(EPISODES):
 
         # Reset variables
         done = False
@@ -49,7 +52,7 @@ def main():
         while not done:
 
             # Check max episodes and increase step
-            if episode_step == MAX_EPISODES:
+            if episode_step >= MAX_EPISODES:
                 break
 
             # Get best action
@@ -68,12 +71,16 @@ def main():
             reward = controller.get_reward(manipulator, blob)
             done = controller.is_done(manipulator, blob)
 
+            debug_before = time.time()
+
             # Update agent
             agent.update(state=state,
                          new_state=new_state,
                          action=action,
                          reward=reward,
                          done=done)
+
+            debug_after = time.time()
 
             # Update variables
             state = new_state
@@ -83,7 +90,9 @@ def main():
             # Render
             if not episode % SHOW_EVERY:
                 graphics.render(manipulator, blob)
-                time.sleep(0.05)
+                time.sleep(0.01)
+
+            log.debug(f'Time spent: {debug_after - debug_before}', flush=True)
 
         # Increase times completed counter if done
         if done:

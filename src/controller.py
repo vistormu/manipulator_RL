@@ -41,11 +41,7 @@ class Controller():
 
     def is_done(self, manipulator: Manipulator, blob: Blob):
 
-        done = False
-        if self._is_equal(manipulator, blob):
-            done = True
-
-        return done
+        return True if self._is_equal(manipulator, blob) else False
 
     @staticmethod
     def _get_distance_vector(manipulator: Manipulator, blob: Blob):

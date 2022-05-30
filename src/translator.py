@@ -16,12 +16,11 @@ class Movement(enum.Enum):
 
 class Translator():
     def __init__(self) -> None:
-        pass
+        self.output_size = len(Movement)
 
-    @ staticmethod
-    def _get_movement(choice: int) -> Movement:
+    def _get_movement(self, choice: int) -> Movement:
 
-        assert 0 <= choice <= 7
+        assert 0 <= choice < self.output_size
 
         if choice == 0:
             movement = Movement.q1_cw
