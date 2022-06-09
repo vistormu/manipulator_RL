@@ -36,7 +36,7 @@ class QAgent(IAgent):
 
         return action
 
-    def update(self, state, new_state, action, reward, done) -> None:
+    def train(self, state, new_state, action, reward, done) -> None:
         discrete_state = self._get_discrete_state(state)
         new_discrete_state = self._get_discrete_state(new_state)
 

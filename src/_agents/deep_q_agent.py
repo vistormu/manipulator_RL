@@ -4,7 +4,6 @@ import numpy as np
 from keras import models, layers
 
 from . import IAgent
-
 from core import logger
 
 
@@ -22,7 +21,7 @@ class DeepQAgent(IAgent):
     DISCOUNT = 0.99
 
     def __init__(self, size) -> None:
-        self.log = logger.Logger(__class__.__name__)
+        self.log = logger.Logger(__class__.__name__)  # debug
 
         self.input_size, self.hidden_size, self.output_size = size
 
@@ -37,57 +36,21 @@ class DeepQAgent(IAgent):
 
         self.epsilon = 1
 
-    def get_best_action(self, state):
+    def get_best_action(self, state: np.ndarray) -> int:
 
         if np.random.random() > self.epsilon:
-            action = np.argmax(self.model.predict(
-                state.reshape(-1, *state.shape))[0])
+            prediction = self.model(np.array([state]))
+            action = np.argmax(prediction)
         else:
             action = np.random.randint(0, self.output_size)
 
         return action
 
-    def update(self, state, new_state, action, reward, done):
+    def train(self, state, new_state, action, reward, done) -> None:
 
-        # Update replay memory
-        transition = (state, new_state, action, reward, done)
-        self.replay_memory.append(transition)
+        self._update_memory(state, new_state, action, reward, done)
 
-        # Start training only if certain number of samples is already saved
-        if len(self.replay_memory) < self.MIN_REPLAY_MEMORY_SIZE:
-            return
-
-        minibatch = random.sample(self.replay_memory, self.MINIBATCH_SIZE)
-
-        states, new_states, actions, rewards, dones = zip(*minibatch)
-        current_qs = self.model.predict(np.array(states))
-        future_qs = self.model.predict(np.array(new_states))
-
-        X = []
-        y = []
-
-        for index, (state, new_state, action, reward, done) in enumerate(minibatch):
-
-            if not done:
-                max_future_q = np.max(future_qs[index])
-                new_q = reward + self.DISCOUNT * max_future_q
-            else:
-                new_q = reward
-
-            # Update Q value for given state
-            current_q = current_qs[index]
-            current_q[action] = new_q
-
-            # And append to our training data
-            X.append(state)
-            y.append(current_q)
-
-        # Fit on all samples as one batch
-        self.model.fit(np.array(X),
-                       np.array(y),
-                       batch_size=self.MINIBATCH_SIZE,
-                       verbose=0,
-                       shuffle=False)
+        self._train_model()
 
         # Update target network counter every episode
         if done:
@@ -117,11 +80,59 @@ class DeepQAgent(IAgent):
 
         # Output layer
         model.add(layers.Dense(self.output_size,
-                               activation='sigmoid'))
+                               activation='linear'))
 
         # Compiler
-        model.compile(loss='categorical_crossentropy',
+        model.compile(loss='mse',
                       optimizer='adam',
                       metrics=['accuracy'])
 
         return model
+
+    def _update_memory(self, state, new_state, action, reward, done) -> None:
+        transition = (state, new_state, action, reward, done)
+        self.replay_memory.append(transition)
+
+    def _train_model(self) -> None:
+
+        # Start training only if certain number of samples is already saved
+        if len(self.replay_memory) < self.MIN_REPLAY_MEMORY_SIZE:
+            return
+
+        # Get minibatch from memory
+        minibatch = random.sample(self.replay_memory, self.MINIBATCH_SIZE)
+
+        states, new_states, actions, rewards, dones = zip(*minibatch)
+
+        current_qs = self.model(np.array(states))
+        future_qs = self.model(np.array(new_states))
+
+        current_qs = np.array(current_qs)
+        future_qs = np.array(future_qs)
+
+        X = []
+        y = []
+
+        for index, (state, new_state, action, reward, done) in enumerate(minibatch):
+
+            if not done:
+                max_future_q = np.max(future_qs[index])
+                new_q = reward + self.DISCOUNT * max_future_q
+            else:
+                # new_q = reward
+                new_q = 0
+
+            # Update Q value for given state
+            current_q = current_qs[index]
+            current_q[action] = new_q
+
+            # And append to our training data
+            X.append(state)
+            y.append(current_q)
+
+        # Fit on all samples as one batch
+        self.model.fit(np.array(X),
+                       np.array(y),
+                       batch_size=self.MINIBATCH_SIZE,
+                       verbose=0,
+                       shuffle=False)

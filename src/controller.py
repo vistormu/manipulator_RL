@@ -40,7 +40,6 @@ class Controller():
         return reward
 
     def is_done(self, manipulator: Manipulator, blob: Blob):
-
         return True if self._is_equal(manipulator, blob) else False
 
     @staticmethod

@@ -20,8 +20,8 @@ def main():
 
     # Constants
     EPISODES = 20_000
-    SHOW_EVERY = 1000
-    MAX_EPISODES = 200
+    SHOW_EVERY = 100
+    MAX_EPISODES = 500
 
     # Entities
     manipulator = Manipulator()
@@ -31,14 +31,14 @@ def main():
     # agent = agents.get_agent(agent_type='q_agent',
     #                          action_space_size=translator.output_size)
     agent = agents.get_agent(agent_type='deep_q_agent',
-                             size=(2, 16, translator.output_size))
+                             size=(2, 24, translator.output_size))
     graphics = Graphics()
 
     # Variables
     times_completed = 0
 
-    # for episode in tqdm.tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
-    for episode in range(EPISODES):
+    for episode in tqdm.tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
+        # for episode in range(1, EPISODES+1):
 
         # Reset variables
         done = False
@@ -71,16 +71,23 @@ def main():
             reward = controller.get_reward(manipulator, blob)
             done = controller.is_done(manipulator, blob)
 
-            debug_before = time.time()
+            # debug
+            if episode > 1000:
+                graphics.render(manipulator, blob)
+                time.sleep(0.01)
+            else:
+                agent.train(state=state,
+                            new_state=new_state,
+                            action=action,
+                            reward=reward,
+                            done=done)
 
-            # Update agent
-            agent.update(state=state,
-                         new_state=new_state,
-                         action=action,
-                         reward=reward,
-                         done=done)
-
-            debug_after = time.time()
+            # Train agent
+            # agent.train(state=state,
+            #             new_state=new_state,
+            #             action=action,
+            #             reward=reward,
+            #             done=done)
 
             # Update variables
             state = new_state
@@ -88,11 +95,9 @@ def main():
             episode_reward += reward
 
             # Render
-            if not episode % SHOW_EVERY:
-                graphics.render(manipulator, blob)
-                time.sleep(0.01)
-
-            log.debug(f'Time spent: {debug_after - debug_before}', flush=True)
+            # if not episode % SHOW_EVERY:
+            #     graphics.render(manipulator, blob)
+            #     time.sleep(0.01)
 
         # Increase times completed counter if done
         if done:

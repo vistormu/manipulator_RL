@@ -8,7 +8,7 @@ class IAgent(abc.ABC):
         ''' Interface method '''
 
     @abc.abstractmethod
-    def update():
+    def train():
         ''' Interface method '''
 
     @abc.abstractmethod

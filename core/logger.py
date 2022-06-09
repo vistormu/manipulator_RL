@@ -37,7 +37,8 @@ def output(function):
     def wrapper(*args, **kwargs):
         return_value = function(*args, **kwargs)
         if kwargs.get('flush'):
-            print('\r' + return_value, end='', **kwargs)
+            # print('\r' + return_value, end='\r', **kwargs)
+            print(return_value)
             print(_Formatter.LINE_UP, end=_Formatter.LINE_CLEAR)
         else:
             print(return_value, **kwargs)
