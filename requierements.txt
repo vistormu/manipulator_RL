@@ -1,0 +1,6 @@
+numpy
+pygame
+tensorflow
+keras
+tqdm
+gym

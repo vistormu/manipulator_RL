@@ -1,8 +1,8 @@
 import pygame
 
-from core.coordinates import *
-from src.manipulator import *
-from src.blob import *
+from src.env.core.coordinates import *
+from src.env.entities.manipulator import Manipulator
+from src.env.entities.target import Target
 
 WHITE = (255, 255, 255)
 BLACK = (47, 47, 47)
@@ -16,17 +16,28 @@ WIDTH = 360
 class Graphics():
 
     def __init__(self) -> None:
+        pass
+
+    def init(self):
         pygame.init()
+        pygame.display.init()
         self.display = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.clock = pygame.time.Clock()
 
-    def render(self, robot: Manipulator, blob: Blob):
-
+    def render(self, robot: Manipulator, target: Target):
         self.display.fill(WHITE)
 
         self._draw_robot(robot)
-        self._draw_blob(blob)
+        self._draw_target(target)
 
-        pygame.display.flip()
+    def update(self, fps):
+        pygame.event.pump()
+        pygame.display.update()
+        self.clock.tick(fps)
+
+    def close(self):
+        pygame.display.quit()
+        pygame.quit()
 
     def _draw_robot(self, robot: Manipulator):
         link1_origin = Point(0, HEIGHT)
@@ -39,9 +50,9 @@ class Graphics():
                          link1_origin, link1_end, 4)
         pygame.draw.line(self.display, RED, link1_end, link2_end, 4)
 
-    def _draw_blob(self, blob: Blob):
+    def _draw_target(self, target: Target):
         pygame.draw.circle(
             surface=self.display,
             color=GREEN,
-            center=(int(blob.x*WIDTH), HEIGHT-int(blob.y*WIDTH)),
-            radius=int(blob.size*WIDTH))
+            center=(int(target.x*WIDTH), HEIGHT-int(target.y*WIDTH)),
+            radius=int(target.size*WIDTH))

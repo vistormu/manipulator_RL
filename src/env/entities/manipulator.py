@@ -1,13 +1,6 @@
 import numpy as np
 
-from core import logger
-from core.coordinates import *
-
-
-def _to_radians(angle: Angle) -> Angle:
-    new_angle = np.multiply(angle, np.pi/180)
-
-    return Angle(*new_angle)
+from src.env.core.coordinates import *
 
 
 class Manipulator():
@@ -17,35 +10,31 @@ class Manipulator():
     MAX_ANGLES = Angle(90, 180)
 
     def __init__(self) -> None:
-        self.log = logger.Logger(f'{__class__.__name__}')
         self._init_pose()
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f'End efector at ({self.link2.x}, {self.link2.y})'
 
     def _init_pose(self) -> None:
         q1 = np.random.randint(0, self.MAX_ANGLES.q1)
         q2 = np.random.randint(0, self.MAX_ANGLES.q2)
 
-        angle = Angle(q1, q2)
+        self.set_to(Angle(q1, q2).to_radians())
 
-        self.set_to(angle, degrees=True)
+    def set_to(self, angle: Angle) -> None:
 
-    def set_to(self, angle: Angle, degrees=False) -> None:
-        if degrees:
-            angle = _to_radians(angle)
-
-        clipped_angle = np.clip(angle, (0, 0), _to_radians(self.MAX_ANGLES))
+        clipped_angle = np.clip(angle, (0, 0), self.MAX_ANGLES.to_radians())
         clipped_angle = Angle(*clipped_angle)
 
-        x1, y1, x2, y2 = self._forward_kinematics(clipped_angle)
+        link1_pos, link2_pos = self._forward_kinematics(clipped_angle)
 
-        self.link1 = Pose(x1, y1, clipped_angle.q1)
-        self.link2 = Pose(x2, y2, clipped_angle.q2)
+        self.link1 = Pose(*link1_pos, clipped_angle.q1)
+        self.link2 = Pose(*link2_pos, clipped_angle.q2)
+        self.fingertip_position = link2_pos
 
     def move_to(self, point: Point) -> None:
         if np.power(point.x, 2) + np.power(point.y, 2) > np.power(self.L1+self.L2, 2):
-            self.log.error('cannot move to the requested position')
+            print('cannot move to the requested position')
             return
 
         angle = self._inverse_kinematics(point)
@@ -57,7 +46,7 @@ class Manipulator():
         x2 = x1 + self.L2*np.cos(angle.q1+angle.q2)
         y2 = y1 + self.L2*np.sin(angle.q1+angle.q2)
 
-        return x1, y1, x2, y2
+        return Point(x1, y1), Point(x2, y2)
 
     def _inverse_kinematics(self, point: Point) -> Angle:
         q2 = np.arccos((np.power(point.x, 2)+np.power(point.y, 2) -

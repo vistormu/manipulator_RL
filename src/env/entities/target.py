@@ -1,22 +1,22 @@
 import numpy as np
 
+from src.env.core.coordinates import *
 
-class Blob:
+
+class Target:
     DECAY_VALUE = 0.9999
     MIN_SIZE = 0.01
 
     def __init__(self, *, size) -> None:
         self.size: float = size
-        self.reset()
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f'{__class__.__name__}({self.x}, {self.y})'
 
-    def reset(self):
-        self.x: float = np.random.rand()
-        self.y: float = np.random.rand()
-        self.x: float = np.clip(self.x, 0, 0.5)
-        self.y: float = np.clip(self.y, 0.5, 1)
+    def reset(self, x, y):
+        self.x = x  # TMP
+        self.y = y
+        self.position = Point(x, y)
 
     def decay_size(self) -> None:
         self.size *= self.DECAY_VALUE
