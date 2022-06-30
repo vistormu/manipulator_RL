@@ -3,6 +3,7 @@ import tqdm
 from core import logger
 from src import agents
 from src.env.manipulator_env import ManipulatorEnv
+from src.save_info import Save
 
 
 def main():
@@ -19,6 +20,9 @@ def main():
     env = ManipulatorEnv()
     agent = agents.get_agent(agent_type='deep_q_agent',
                              size=(8, 24, 8))  # TMP
+
+    save = Save(filename='results/results.csv',
+                fieldnames=['episode', 'steps', 'rewards', 'done'])  # TMP
 
     # Variables
     times_completed = 0
@@ -63,6 +67,16 @@ def main():
 
         # Decay epsilon
         agent.decay()
+
+        # Log info
+        row = {
+            'episode': episode,
+            'steps': episode_step,
+            'rewards': episode_reward,
+            'done': 1 if done else 0,
+        }
+
+        save.row(row)
 
     log.info(f'{times_completed=}')
 
