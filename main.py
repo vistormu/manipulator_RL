@@ -13,7 +13,7 @@ def main():
 
     # Constants
     EPISODES = 1000
-    SHOW_AFTER = 990
+    SHOW_AFTER = 0
     MAX_EPISODES = 200
 
     # Entities
@@ -21,8 +21,8 @@ def main():
     agent = agents.get_agent(agent_type='deep_q_agent',
                              size=(8, 24, 8))  # TMP
 
-    save = Save(filename='results/results.csv',
-                fieldnames=['episode', 'steps', 'rewards', 'done'])  # TMP
+    # save = Save(filename='results/results.csv',
+    #             fieldnames=['episode', 'steps', 'rewards', 'done'])  # TMP
 
     # Variables
     times_completed = 0
@@ -76,7 +76,7 @@ def main():
             'done': 1 if done else 0,
         }
 
-        save.row(row)
+        # save.row(row)
 
     log.info(f'{times_completed=}')
 

@@ -14,7 +14,7 @@ class ManipulatorEnv(gym.Env):
 
     def __init__(self) -> None:
         self.manipulator = Manipulator()
-        self.target = Target(size=0.1)
+        self.target = Target(size=0.05)
         self._observer = Observer()
         self._translator = Translator()
         self._graphics = Graphics()
