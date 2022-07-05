@@ -1,0 +1,2 @@
+class FabrikEnv:
+    pass

@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.env.core.coordinates import *
+from src.envs.core.coordinates import *
 
 
 class Target:

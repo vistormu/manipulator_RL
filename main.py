@@ -2,7 +2,7 @@ import tqdm
 
 from core import logger
 from src import agents
-from src.env.manipulator_env import ManipulatorEnv
+from src import envs
 from src.save_info import Save
 
 
@@ -13,11 +13,11 @@ def main():
 
     # Constants
     EPISODES = 1000
-    SHOW_AFTER = 0
+    SHOW_AFTER = 990
     MAX_EPISODES = 200
 
     # Entities
-    env = ManipulatorEnv()
+    env = envs.make('Manipulator-v0')
     agent = agents.get_agent(agent_type='deep_q_agent',
                              size=(8, 24, 8))  # TMP
 

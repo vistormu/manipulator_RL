@@ -1,7 +1,7 @@
 import numpy as np
 
-from src.env.entities.manipulator import Manipulator
-from src.env.entities.target import Target
+from src.envs.manipulator_env.entities.manipulator import Manipulator
+from src.envs.manipulator_env.entities.target import Target
 
 
 class Observer():

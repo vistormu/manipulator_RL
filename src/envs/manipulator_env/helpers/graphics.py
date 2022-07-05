@@ -1,9 +1,9 @@
 import pygame
 import numpy as np
 
-from src.env.core.coordinates import *
-from src.env.entities.manipulator import Manipulator
-from src.env.entities.target import Target
+from src.envs.core.coordinates import *
+from src.envs.manipulator_env.entities.manipulator import Manipulator
+from src.envs.manipulator_env.entities.target import Target
 
 WHITE = (255, 255, 255)
 BLACK = (47, 47, 47)
@@ -13,10 +13,14 @@ GREEN = (69, 181, 69)
 HEIGHT = 360
 WIDTH = 360
 
-background_img = pygame.image.load('src/env/helpers/assets/background.png')
-link1_img = pygame.image.load('src/env/helpers/assets/link-1.png')
-link2_img = pygame.image.load('src/env/helpers/assets/link-2.png')
-target_img = pygame.image.load('src/env/helpers/assets/target.png')
+background_img = pygame.image.load(
+    'src/envs/manipulator_env/helpers/assets/background.png')
+link1_img = pygame.image.load(
+    'src/envs/manipulator_env/helpers/assets/link-1.png')
+link2_img = pygame.image.load(
+    'src/envs/manipulator_env/helpers/assets/link-2.png')
+target_img = pygame.image.load(
+    'src/envs/manipulator_env/helpers/assets/target.png')
 
 
 class Graphics():

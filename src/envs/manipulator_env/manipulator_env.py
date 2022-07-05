@@ -1,12 +1,12 @@
 import gym
 from gym import spaces
 
-from src.env.core.coordinates import *
-from src.env.entities.manipulator import Manipulator
-from src.env.helpers.graphics import Graphics
-from src.env.entities.target import Target
-from src.env.helpers.observer import Observer
-from src.env.helpers.translator import Translator
+from src.envs.core.coordinates import *
+from src.envs.manipulator_env.entities.manipulator import Manipulator
+from src.envs.manipulator_env.helpers.graphics import Graphics
+from src.envs.manipulator_env.entities.target import Target
+from src.envs.manipulator_env.helpers.observer import Observer
+from src.envs.manipulator_env.helpers.translator import Translator
 
 
 class ManipulatorEnv(gym.Env):

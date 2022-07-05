@@ -1,8 +1,10 @@
 numpy
 pygame
 tensorflow
+tensorflow-gpu
 keras
 tqdm
 gym
 matplotlib
 pandas
+--extra-index-url https://pypi.ngc.nvidia.com
