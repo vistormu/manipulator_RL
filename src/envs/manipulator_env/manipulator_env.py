@@ -46,6 +46,8 @@ class ManipulatorEnv(gym.Env):
         self.action_space = spaces.Discrete(
             self._translator.output_size)
 
+        self.window = None
+
     def reset(self, seed=None, return_info=False, options=None):
         super().reset(seed=seed)
 
@@ -78,8 +80,11 @@ class ManipulatorEnv(gym.Env):
         return observation, reward, done, info
 
     def render(self, mode="human"):
-        if mode == "human":
+        if self.window is None and mode == "human":
             self._graphics.init()
+            self.window = self._graphics.display
+
+        if mode == "human":
             self._graphics.render(self.manipulator, self.target)
             self._graphics.update(self.metadata["render_fps"])
 

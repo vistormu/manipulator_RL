@@ -18,6 +18,9 @@ class Angle(NamedTuple):
     def __add__(self, other):
         return Angle(self.q1 + other.q1, self.q2 + other.q2)
 
+    def __mul__(self, scalar):
+        return Angle(self.q1*scalar, self.q2*scalar)
+
     def to_radians(self):
         return Angle(self.q1*np.pi/180, self.q2*np.pi/180)
 
@@ -34,3 +37,13 @@ class Point(NamedTuple):
 
     def __add__(self, other):
         return Point(self.x + other.x, self.y + other.y)
+
+    def __mul__(self, scalar):
+        return Point(self.x*scalar, self.y*scalar)
+
+
+class Link(NamedTuple):
+    start: Point
+    end: Point
+    length: float
+    angle: float

@@ -3,7 +3,7 @@ import numpy as np
 from src.envs.core.coordinates import *
 
 
-class Translator():
+class Translator:
     def __init__(self) -> None:
         self._action_to_direction = {
             0: np.array([1, 0]),

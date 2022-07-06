@@ -13,13 +13,13 @@ def main():
 
     # Constants
     EPISODES = 1000
-    SHOW_AFTER = 990
+    SHOW_AFTER = 950
     MAX_EPISODES = 200
 
     # Entities
-    env = envs.make('Manipulator-v0')
+    env = envs.make('Fabrik-v0')
     agent = agents.get_agent(agent_type='deep_q_agent',
-                             size=(8, 24, 8))  # TMP
+                             size=(env.observation_space_size, 64, env.action_space_size))  # TMP
 
     # save = Save(filename='results/results.csv',
     #             fieldnames=['episode', 'steps', 'rewards', 'done'])  # TMP
@@ -28,6 +28,7 @@ def main():
     times_completed = 0
 
     for episode in tqdm.tqdm(range(1, EPISODES + 1), unit='episodes'):
+        # for episode in range(1, EPISODES+1):
 
         # Reset variables
         done = False
@@ -43,6 +44,8 @@ def main():
 
             # Get best action
             action = agent.get_best_action(observation)
+
+            # log.debug(f'{action}', flush=True)
 
             new_observation, reward, done, _ = env.step(action)
 
@@ -79,6 +82,8 @@ def main():
         # save.row(row)
 
     log.info(f'{times_completed=}')
+
+    env.close()
 
 
 if __name__ == '__main__':

@@ -4,7 +4,6 @@ import numpy as np
 from keras import models, layers
 
 from . import IAgent
-from core import logger
 
 
 class DeepQAgent(IAgent):
@@ -21,8 +20,6 @@ class DeepQAgent(IAgent):
     DISCOUNT = 0.99
 
     def __init__(self, size) -> None:
-        self.log = logger.Logger(__class__.__name__)  # debug
-
         self.input_size, self.hidden_size, self.output_size = size
 
         self.model = self._create_model()

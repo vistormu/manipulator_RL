@@ -48,7 +48,7 @@ class Observer():
         return reward
 
     def is_done(self, manipulator: Manipulator, target: Target):
-        return True if self._is_equal(manipulator, target) else False
+        return self._is_equal(manipulator, target)
 
     def get_info(self):
         return dict()
